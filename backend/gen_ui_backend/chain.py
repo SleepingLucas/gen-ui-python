@@ -4,13 +4,13 @@ from langchain.output_parsers.openai_tools import JsonOutputToolsParser
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnableConfig
-from langchain_openai import ChatOpenAI
+from langchain_community.chat_models.tongyi import ChatTongyi
 from langgraph.graph import END, StateGraph
 from langgraph.graph.graph import CompiledGraph
 
 from gen_ui_backend.tools.github import github_repo
 from gen_ui_backend.tools.invoice import invoice_parser
-from gen_ui_backend.tools.weather import weather_data
+from gen_ui_backend.tools.weather import qweather_data
 
 
 class GenerativeUIState(TypedDict, total=False):
@@ -30,13 +30,13 @@ def invoke_model(state: GenerativeUIState, config: RunnableConfig) -> Generative
             (
                 "system",
                 "You are a helpful assistant. You're provided a list of tools, and an input from the user.\n"
-                + "Your job is to determine whether or not you have a tool which can handle the users input, or respond with plain text.",
+                "Your job is to determine whether or not you have a tool which can handle the users input, or respond with plain text.",
             ),
             MessagesPlaceholder("input"),
         ]
     )
-    model = ChatOpenAI(model="gpt-4o", temperature=0, streaming=True)
-    tools = [github_repo, invoice_parser, weather_data]
+    model = ChatTongyi(model="qwen2.5-72b-instruct", temperature=0, streaming=True)
+    tools = [github_repo, invoice_parser, qweather_data]
     model_with_tools = model.bind_tools(tools)
     chain = initial_prompt | model_with_tools
     result = chain.invoke({"input": state["input"]}, config)
@@ -64,7 +64,7 @@ def invoke_tools(state: GenerativeUIState) -> GenerativeUIState:
     tools_map = {
         "github-repo": github_repo,
         "invoice-parser": invoice_parser,
-        "weather-data": weather_data,
+        "qweather-data": qweather_data,
     }
 
     if state["tool_calls"] is not None:

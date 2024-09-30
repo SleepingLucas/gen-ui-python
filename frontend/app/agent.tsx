@@ -32,7 +32,7 @@ const TOOL_COMPONENT_MAP: ToolComponentMap = {
     loading: (props?: any) => <InvoiceLoading {...props} />,
     final: (props?: any) => <Invoice {...props} />,
   },
-  "weather-data": {
+  "qweather-data": {
     loading: (props?: any) => <CurrentWeatherLoading {...props} />,
     final: (props?: any) => <CurrentWeather {...props} />,
   },
